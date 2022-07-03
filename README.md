@@ -1,0 +1,1 @@
+Pastikan menginstall requirements.txt
