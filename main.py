@@ -31,73 +31,53 @@ except:
 try:
     error = databases.child("Push").child("Push").get()
     error = error.val()
-    logging.info("Nilai Sekarang %s", error)
+    logging.info("Nilai Sekarang ss %s", error)
 except:
     logging.error("Error melakukan get hasil")
 
 logging.info("Program still Running")
-while error == 0:
+while True:
     try:
         error = databases.child("Push").child("Push").get()
         error = error.val()
-        logging.info("Nilai Sekarang %s", error)
     except:
         logging.error("Error melakukan get hasil")
     if error == 1:
         #Download
-        path_on_cloud = "images/hasil3.jpg"
-        storage.child(path_on_cloud).download("Images/img_1.png")
-        logging.info("berhasil melakukan Download. Path : Images/img_1.png")
+        path_on_cloud = "image.jpg"
+        storage.child(path_on_cloud).download("image.jpg")
+        logging.info("berhasil melakukan Download. Path : image.jpg")
 
         matplotlib.rcParams['font.size'] = 9
-        original = Image.open("Images/img_1.png")
-        img = Image.open("Images/img_1.png").convert('L')
+        original = Image.open("image.jpg")
+        img = Image.open("image.jpg").convert('L')
         image = np.array(img)
         binary_global = image > threshold_otsu(image)
-        logging.info("Berhasil Melakukan binary_global")
 
         window_size = 25
         Koofesien = 0.8
         thresh_niblack = threshold_niblack(image, window_size=window_size, k=Koofesien)
-        logging.info("Berhasil Melakukan binary_niblack, Window Size : %s", window_size)
-        logging.info("Berhasil Melakukan binary_niblack, Koofesien : %s", Koofesien)
 
         thresh_sauvola = threshold_sauvola(image, window_size=window_size)
-        logging.info("Berhasil Melakukan binary_sauvola, Window Size : %s", window_size)
 
         binary_niblack = image > thresh_niblack
         binary_sauvola = image > thresh_sauvola
-        TNS = binary_niblack + binary_sauvola / 2
+        TNS = (binary_niblack + binary_sauvola) / 2
         logging.info("Berhasil Melakukan binary_TNS")
 
         plt.figure(figsize=(8, 7))
-        plt.subplot(2, 2, 1)
-        plt.imshow(original, cmap=plt.cm.gray)
-        plt.title('Original')
-        plt.axis('off')
-
-        plt.subplot(2, 2, 2)
+        plt.subplot(1, 1, 1)
         plt.title('TNS')
         plt.imshow(TNS, cmap=plt.cm.gray)
         plt.axis('off')
 
-        plt.subplot(2, 2, 3)
-        plt.imshow(binary_niblack, cmap=plt.cm.gray)
-        plt.title('Niblack Threshold')
-        plt.axis('off')
-
-        plt.subplot(2, 2, 4)
-        plt.imshow(binary_sauvola, cmap=plt.cm.gray)
-        plt.title('Sauvola Threshold')
-        plt.axis('off')
-
-        plt.savefig("Images/hasil3.png")
+        plt.savefig("image.jpg")
         logging.info("Berhasil menyimpan gambar hasil Binary")
 
         firebase = pyrebase.initialize_app(config)
         storage = firebase.storage()
 
-        path_local = "Images/hasil3.png"
+        path_local = "image.jpg"
         storage.child(path_on_cloud).put(path_local)
         logging.info("Berhasil Mengupload gambar ke firebase")
         try:
