@@ -1,5 +1,5 @@
 import logging
-logging.basicConfig(level=logging.INFO, filename='app.log', filemode='w', format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.ERROR, filename='logging.log', filemode='w', format='%(asctime)s - %(levelname)s - %(message)s')
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -24,18 +24,18 @@ try:
     firebase = pyrebase.initialize_app(config)
     storage = firebase.storage()
     databases = firebase.database()
-    logging.info("Berhasil Melakukan config firebase")
+    logging.error("Berhasil Melakukan config firebase")
 except:
     logging.error("Error Config Firebase")
 
 try:
     error = databases.child("Push").child("Push").get()
     error = error.val()
-    logging.info("Nilai Sekarang ss %s", error)
+    logging.error("Nilai Sekarang ss %s", error)
 except:
     logging.error("Error melakukan get hasil")
 
-logging.info("Program still Running")
+logging.error("Program still Running")
 while True:
     try:
         error = databases.child("Push").child("Push").get()
@@ -46,7 +46,7 @@ while True:
         #Download
         path_on_cloud = "image.jpg"
         storage.child(path_on_cloud).download("image.jpg")
-        logging.info("berhasil melakukan Download. Path : image.jpg")
+        logging.error("berhasil melakukan Download. Path : image.jpg")
 
         matplotlib.rcParams['font.size'] = 9
         original = Image.open("image.jpg")
@@ -63,7 +63,7 @@ while True:
         binary_niblack = image > thresh_niblack
         binary_sauvola = image > thresh_sauvola
         TNS = (binary_niblack + binary_sauvola) / 2
-        logging.info("Berhasil Melakukan binary_TNS")
+        logging.error("Berhasil Melakukan binary_TNS")
 
         plt.figure(figsize=(8, 7))
         plt.subplot(1, 1, 1)
@@ -72,18 +72,17 @@ while True:
         plt.axis('off')
 
         plt.savefig("image.jpg")
-        logging.info("Berhasil menyimpan gambar hasil Binary")
+        logging.error("Berhasil menyimpan gambar hasil Binary")
 
         firebase = pyrebase.initialize_app(config)
         storage = firebase.storage()
 
         path_local = "image.jpg"
         storage.child(path_on_cloud).put(path_local)
-        logging.info("Berhasil Mengupload gambar ke firebase")
+        logging.error("Berhasil Mengupload gambar ke firebase")
         try:
             data = {"Push":0}
-            #databases.push(data)
             databases.child("Push").update(data)
-            logging.info("berhasil Mengirimkan 0 pada Push, %s", data)
+            logging.error("berhasil Mengirimkan 0 pada Push, %s", data)
         except:
             logging.error("gagal Melakukan Push Data")
