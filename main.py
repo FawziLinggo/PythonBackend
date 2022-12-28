@@ -1,5 +1,7 @@
 import logging
-logging.basicConfig(level=logging.ERROR, filename='logging.log', filemode='w', format='%(asctime)s - %(levelname)s - %(message)s')
+
+import cv2
+logging.basicConfig(level=logging.INFO)
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -8,13 +10,13 @@ from PIL import Image
 from skimage.filters import (threshold_otsu, threshold_niblack,
                              threshold_sauvola)
 import pyrebase
-
+angle = 45
 try:
     #Config Firebase
     config ={
     "apiKey": "AIzaSyAAR8u71dKG9dqYYtgZmhAwwcsN_pWgmMI",
     "authDomain": "ulul-1010.firebaseapp.com",
-    "databaseURL":"https://ulul-1010-default-rtdb.firebaseio.com/",
+    "databaseURL":"https://ulul-1010-default-rtdb.firebaseio.com",
     "projectId": "ulul-1010",
     "storageBucket": "ulul-1010.appspot.com",
     "messagingSenderId": "547305753399",
@@ -45,12 +47,13 @@ while True:
     if error == 1:
         #Download
         path_on_cloud = "image.jpg"
-        storage.child(path_on_cloud).download("image.jpg")
+        storage.child("image.jpg").download(filename="image.jpg",path="")
         logging.error("berhasil melakukan Download. Path : image.jpg")
 
         matplotlib.rcParams['font.size'] = 9
         original = Image.open("image.jpg")
         img = Image.open("image.jpg").convert('L')
+        # img.rotate(90)
         image = np.array(img)
         binary_global = image > threshold_otsu(image)
 
@@ -65,13 +68,17 @@ while True:
         TNS = (binary_niblack + binary_sauvola) / 2
         logging.error("Berhasil Melakukan binary_TNS")
 
-        plt.figure(figsize=(8, 7))
-        plt.subplot(1, 1, 1)
-        plt.title('TNS')
-        plt.imshow(TNS, cmap=plt.cm.gray)
-        plt.axis('off')
+        # # plt.figure(figsize=(8, 7))
+        # new_data = ndimage.rotate(TNS, angle, reshape=True)
+        # plt.imshow(new_data, cmap=plt.cm.gray)
+        # plt.axis('off')
 
-        plt.savefig("image.jpg")
+        # plt.savefig("image.jpg")
+        plt.imsave('image.jpg', TNS,cmap=plt.cm.gray)
+        Original_Image = Image.open("image.jpg")
+        # rotatecmap=plt.cm.gray
+        rotated_image2 = Original_Image.transpose(Image.ROTATE_270)
+        rotated_image2.save("image.jpg")
         logging.error("Berhasil menyimpan gambar hasil Binary")
 
         firebase = pyrebase.initialize_app(config)
